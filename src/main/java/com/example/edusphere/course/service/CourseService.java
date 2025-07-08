@@ -6,6 +6,7 @@ import com.example.edusphere.course.Course;
 import com.example.edusphere.course.repository.CourseRepository;
 import com.example.edusphere.course.request.CourseRequest;
 import com.example.edusphere.course.response.CourseResponse;
+import com.example.edusphere.util.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,12 +26,12 @@ public class CourseService {
 
     public CourseResponse createCourse(CourseRequest request) {
         College college = collegeRepository.findById(request.getCollegeId())
-                .orElseThrow(() -> new RuntimeException("College not found"));
+                .orElseThrow(() -> new NotFoundException("College not found"));
 
         Course course = new Course();
         course.setName(request.getName());
         course.setCollege(college);
-
+        course.setDescription(request.getDescription());
         return mapToResponse(courseRepository.save(course));
     }
 
@@ -48,10 +49,11 @@ public class CourseService {
     public Optional<CourseResponse> updateCourse(Long id, CourseRequest request) {
         return courseRepository.findById(id).map(course -> {
             College college = collegeRepository.findById(request.getCollegeId())
-                    .orElseThrow(() -> new RuntimeException("College not found"));
+                    .orElseThrow(() -> new NotFoundException("College not found"));
 
             course.setName(request.getName());
             course.setCollege(college);
+            course.setDescription(request.getDescription());
 
             return mapToResponse(courseRepository.save(course));
         });

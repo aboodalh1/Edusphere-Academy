@@ -21,7 +21,9 @@ import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -64,7 +66,7 @@ public class StudentService implements UserDetailsService {
         globalStudent.setFirstName(request.getFirstName());
         globalStudent.setLastName(request.getLastName());
         globalStudent.setPhoneNumber(request.getPhoneNumber());
-        studentRepository.save(globalStudent);
+        globalStudent.setPassword("123123");
 
         String otpCode = generateOtp();
         return createOTPCode(request.getPhoneNumber(), otpCode, LocalDateTime.now().plusMinutes(minutesToExpired));
@@ -91,7 +93,9 @@ public class StudentService implements UserDetailsService {
         } else if (!code.getOtp().equals(request.getOTP())) {
             throw new UnAuthorizedException("Invalid OTP code");
         } else {
-            var jwtToken = jwtService.generateToken(globalStudent);
+            studentRepository.save(globalStudent);
+            System.out.println(globalStudent.getId());
+            var jwtToken = jwtService.generateToken(globalStudent,globalStudent.getId());
             StudentAuthResponse studentAuthResponse = new StudentAuthResponse();
             studentAuthResponse.setToken(jwtToken);
             studentAuthResponse.setFirstName(globalStudent.getFirstName());
@@ -123,7 +127,6 @@ public class StudentService implements UserDetailsService {
         }
 
 
-
     @Transactional
     public StudentAuthResponse studentLogin(LoginRequest request, HttpServletRequest httpServletRequest) {
 
@@ -136,7 +139,21 @@ public class StudentService implements UserDetailsService {
         RateLimiter rateLimiter = rateLimiterRegistry.rateLimiter(rateLimiterKey);
 
         if (rateLimiter.acquirePermission()) {
+            Authentication authentication;
+            try {
+                authentication = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                request.getEmail(),
+                                "123123"
+                        ));
+            } catch (AuthenticationException exception) {
+                throw new InvalidCredentialsException("Invalid email or password");
+            }
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), "123123")
+            );
             Student student = studentRepository.findByPhoneNumber(request.getPhoneNumber()).orElseThrow(
                     () -> new RequestNotValidException("Phone number not found")
             );
@@ -152,7 +169,7 @@ public class StudentService implements UserDetailsService {
                 throw new UnAuthorizedException("Expired OTP");
             }
 
-            var jwtToken = jwtService.generateToken(student);
+            var jwtToken = jwtService.generateToken(student,student.getId());
             StudentAuthResponse response = new StudentAuthResponse();
             response.setToken(jwtToken);
             response.setLastName(student.getLastName());

@@ -13,29 +13,37 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Service
 public class JwtService {
 
-    @Value("${jwtKey}")
+//    @Value("${jwtKey}")
     private static String SECRET_KEY = "ohQN9NiajJ7A9RSXegN1uaiTUeaHj1klaXC2QJ+Tr5ZCtyxEPKYrmifS7PHW4Rxv";
 
     public String extractUsername(String token) {
         return extractClaim(token,Claims::getSubject);
     }
 
-    public String generateToken(UserDetails userDetails){
-        return generateToken(new HashMap<>() ,userDetails);
+    public String generateToken(UserDetails userDetails, UUID studentId){
+        return generateToken(new HashMap<>() ,userDetails,studentId);
     }
+
+    public UUID extractUserId(String token) {
+        return UUID.fromString((String) extractAllClaims(token).get("jti")); // depends on how token is built
+    }
+
+
     public String generateToken(
             Map<String ,Object> extraClaims,
-            UserDetails userDetails
+            UserDetails userDetails,
+            UUID studentId
     ){
-
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
+                .setId(studentId.toString())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis()+1000*60*60*24))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -60,11 +68,14 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
+
     public Claims extractAllClaims(String token){
+
         return Jwts.parserBuilder().setSigningKey(getSignInKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+
     }
 
     private Key getSignInKey() {

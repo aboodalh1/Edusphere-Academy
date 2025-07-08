@@ -2,10 +2,12 @@ package com.example.edusphere.student.model;
 
 import com.example.edusphere.college.model.College;
 import com.example.edusphere.course.Course;
+import com.example.edusphere.feedback.model.Feedback;
 import com.example.edusphere.university.model.University;
 import com.example.edusphere.wallet.Wallet;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -44,6 +46,24 @@ public class Student implements UserDetails {
     @JsonBackReference
     private College college;
 
+    @Column(nullable = false)
+    private String password;
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public List<Feedback> getFeedbacks() {
+        return feedbacks;
+    }
+
+    public void setFeedbacks(List<Feedback> feedbacks) {
+        this.feedbacks = feedbacks;
+    }
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<Feedback> feedbacks = new ArrayList<>();
+
     @ManyToMany
     @JoinTable(
             name = "student_course",
@@ -65,13 +85,13 @@ public class Student implements UserDetails {
 
     @Override
     public String getPassword() {
-        return "";
+        return password;
     }
 
 
     @Override
     public String getUsername() {
-        return "";
+        return phoneNumber;
     }
 
     @Override

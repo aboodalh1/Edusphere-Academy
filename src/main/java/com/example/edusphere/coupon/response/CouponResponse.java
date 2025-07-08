@@ -1,29 +1,16 @@
-package com.example.edusphere.coupon;
+package com.example.edusphere.coupon.response;
 
-import com.example.edusphere.student.model.Student;
-import jakarta.persistence.*;
-
-import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
-@Entity
-public class Coupon {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class CouponResponse {
     private Long id;
-
-    @Column(unique = true)
     private String code;
-
     private double bonusAmount;
+    private boolean reusable;
+    private Set<UUID> usedByStudentIds;
 
-    private boolean reusable = false;
-
-    // Optional: track who used it
-    @ManyToMany
-    private Set<Student> usedByStudents = new HashSet<>();
-
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -56,13 +43,11 @@ public class Coupon {
         this.reusable = reusable;
     }
 
-    public Set<Student> getUsedByStudents() {
-        return usedByStudents;
+    public Set<UUID> getUsedByStudentIds() {
+        return usedByStudentIds;
     }
 
-    public void setUsedByStudents(Set<Student> usedByStudents) {
-        this.usedByStudents = usedByStudents;
+    public void setUsedByStudentIds(Set<UUID> usedByStudentIds) {
+        this.usedByStudentIds = usedByStudentIds;
     }
-
-    // getters and setters
 }

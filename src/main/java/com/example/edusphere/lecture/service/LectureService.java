@@ -6,6 +6,7 @@ import com.example.edusphere.lecture.Lecture;
 import com.example.edusphere.lecture.repository.LectureRepository;
 import com.example.edusphere.lecture.request.LectureRequest;
 import com.example.edusphere.lecture.response.LectureResponse;
+import com.example.edusphere.util.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,10 +26,11 @@ public class LectureService {
 
     public LectureResponse createLecture(LectureRequest request) {
         Course course = courseRepository.findById(request.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() -> new NotFoundException("Course not found"));
 
         Lecture lecture = new Lecture();
         lecture.setName(request.getName());
+        lecture.setDescription(request.getDescription());
         lecture.setCourse(course);
         lecture.setContent(request.getContent());
         Lecture saved = lectureRepository.save(lecture);
@@ -50,9 +52,10 @@ public class LectureService {
     public Optional<LectureResponse> updateLecture(Long id, LectureRequest request) {
         return lectureRepository.findById(id).map(existing -> {
             Course course = courseRepository.findById(request.getCourseId())
-                    .orElseThrow(() -> new RuntimeException("Course not found"));
+                    .orElseThrow(() -> new NotFoundException("Course not found"));
             existing.setContent(request.getContent());
             existing.setName(request.getName());
+            existing.setDescription(request.getDescription());
             existing.setCourse(course);
             return mapToResponse(lectureRepository.save(existing));
         });
@@ -68,6 +71,7 @@ public class LectureService {
         response.setName(lecture.getName());
         response.setContent(lecture.getContent());
         response.setCourseId(lecture.getCourse().getId());
+        response.setDescription(lecture.getDescription());
         response.setCourseName(lecture.getCourse().getName());
         return response;
     }

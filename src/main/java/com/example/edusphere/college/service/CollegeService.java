@@ -29,8 +29,8 @@ public class CollegeService {
         return collegeRepository.findById(id);
     }
 
-    public Optional<College> createCollege(CollegeRequest request, Long universityId) {
-        return universityRepository.findById(universityId).map(university -> {
+    public Optional<College> createCollege(CollegeRequest request) {
+        return universityRepository.findById(request.getUniversityId()).map(university -> {
             College college = new College();
             college.setName(request.getCollegeName());
             college.setUniversity(university);
@@ -38,9 +38,9 @@ public class CollegeService {
         });
     }
 
-    public Optional<College> updateCollege(Long id, CollegeRequest updatedCollege, Long universityId) {
+    public Optional<College> updateCollege(Long id, CollegeRequest updatedCollege) {
         return collegeRepository.findById(id).flatMap(existingCollege -> {
-            Optional<University> university = universityRepository.findById(universityId);
+            Optional<University> university = universityRepository.findById(updatedCollege.getUniversityId());
             if (university.isPresent()) {
                 existingCollege.setName(updatedCollege.getCollegeName());
                 existingCollege.setUniversity(university.get());

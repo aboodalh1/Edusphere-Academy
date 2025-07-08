@@ -4,6 +4,9 @@ public class CourseResponse {
 
     private Long id;
     private String name;
+
+
+    private String description;
     private Long collegeId;
     private String collegeName;
 
@@ -22,6 +25,15 @@ public class CourseResponse {
     public void setName(String name) {
         this.name = name;
     }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
 
     public Long getCollegeId() {
         return collegeId;

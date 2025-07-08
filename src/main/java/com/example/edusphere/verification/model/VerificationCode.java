@@ -1,13 +1,10 @@
 package com.example.edusphere.verification.model;
 
 import jakarta.persistence.*;
-import lombok.Builder;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "verification_codes")
-@Builder
 public class VerificationCode {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

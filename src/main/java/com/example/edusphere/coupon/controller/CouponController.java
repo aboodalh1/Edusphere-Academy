@@ -1,6 +1,8 @@
 package com.example.edusphere.coupon.controller;
 
 import com.example.edusphere.coupon.Coupon;
+import com.example.edusphere.coupon.request.CouponRequest;
+import com.example.edusphere.coupon.response.CouponResponse;
 import com.example.edusphere.coupon.service.CouponService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +20,7 @@ public class CouponController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Coupon> createCoupon(@RequestBody Coupon coupon) {
+    public ResponseEntity<CouponResponse> createCoupon(@RequestBody CouponRequest coupon) {
         return ResponseEntity.ok(couponService.createCoupon(coupon));
     }
 

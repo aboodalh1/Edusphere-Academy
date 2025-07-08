@@ -1,6 +1,8 @@
 package com.example.edusphere.wallet;
 
 import com.example.edusphere.student.model.Student;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -13,6 +15,7 @@ public class Wallet {
     private double balance;
 
     @OneToOne
+    @JsonBackReference
     @JoinColumn(name = "student_id")
     private Student student;
 

@@ -1,17 +1,77 @@
-version: '3.8'
+#version: '3.8'
+#
+#services:
+#  postgres:
+#    image: postgres:latest
+#    container_name: edusphere_container
+#    environment:
+#      POSTGRES_USER: abdallah
+#      POSTGRES_PASSWORD: password
+#      POSTGRES_DB: edusphere_db
+#      PGDATA: /var/lib/postgresql/data
+#    ports:
+#      - "5234:5432"
+#    restart: unless-stopped
+#
+#volumes:
+#  postgres_data:
 
+version: '3.8'
+# You can just enable docker for psql database, Or run whole project on docker container
+
+# Database service
 services:
-  postgres:
+  edusphere-db:
     image: postgres:latest
-    container_name: edusphere_container
+    container_name: edusphere-db
     environment:
       POSTGRES_USER: abdallah
       POSTGRES_PASSWORD: password
       POSTGRES_DB: edusphere_db
-      PGDATA: /var/lib/postgresql/data
+      PGDATA: /var/lib/postgresql/data # Internal path where Postgres stores data
     ports:
-      - "5234:5432"
+      - "15433:5432" # Maps container port 5432 to host port 15432 (optional for direct access)
+    networks:
+      - edusphere-net
     restart: unless-stopped
+    volumes:
+      # Named Volume for Persistent Database Data (CRUCIAL FOR DATA PERSISTENCE & RESTORATION)
+      - edusphere_pg_data:/var/lib/postgresql/data # Maps internal PGDATA to a named Docker volume
+    healthcheck: # IMPORTANT: This ensures the DB is truly ready before apps connect
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s # Give the DB some initial time to come up
 
+  # application service
+  edusphere-app:
+    build: . # Builds the Docker image from the Dockerfile in the current directory
+    image: edusphere-app # Name for your built Docker image
+    depends_on:
+      # edusphere-app will start ONLY AFTER edusphere-db is healthy
+      edusphere-db:
+        condition: service_healthy
+    container_name: edusphere-backend
+    ports:
+      - "13001:13001" # Maps container port 3000 to host port 13000
+    environment:
+      # Database connection details, using the Docker Compose service name 'edusphere-db' as the hostname
+      SPRING_DATASOURCE_URL: jdbc:postgresql://edusphere-db:5432/edusphere_db
+      SPRING_DATASOURCE_USERNAME: abdallah
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_DATASOURCE_DATABASE: edusphere_db
+      # Ensure Flyway is enabled (though usually auto-detected)
+      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_FLYWAY_LOCATIONS: "classpath:/db/migration"
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
+    networks:
+      - edusphere-net # Connects to the shared network
+
+networks:
+  edusphere-net:
+    driver: bridge
+
+# Define the named volume for data persistence
 volumes:
-  postgres_data:
+  edusphere_pg_data: # This is the named volume that Docker manages on your host

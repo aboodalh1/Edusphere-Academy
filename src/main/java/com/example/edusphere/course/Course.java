@@ -21,6 +21,8 @@ public class Course {
 
     private String name;
 
+    private String description;
+
     @ManyToOne
     @JoinColumn(name = "college_id")
     @JsonBackReference
@@ -71,6 +73,14 @@ public class Course {
 
     public void setStudents(Set<Student> students) {
         this.students = students;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
 //    public College getCollege_id() {

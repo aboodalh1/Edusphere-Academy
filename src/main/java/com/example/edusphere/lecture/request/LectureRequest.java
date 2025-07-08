@@ -5,6 +5,7 @@ public class LectureRequest {
     private String name;
     private Long courseId;
     private String content;
+    private String description;
 
     public String getContent() {
         return content;
@@ -27,5 +28,13 @@ public class LectureRequest {
 
     public void setCourseId(Long courseId) {
         this.courseId = courseId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

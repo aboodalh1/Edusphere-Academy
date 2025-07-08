@@ -6,6 +6,7 @@ public class LectureResponse {
     private String name;
     private Long courseId;
     private String courseName;
+    private String description;
     private String content;
 
     public String getContent() {
@@ -45,5 +46,13 @@ public class LectureResponse {
 
     public void setCourseName(String courseName) {
         this.courseName = courseName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

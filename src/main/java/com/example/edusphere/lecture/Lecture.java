@@ -12,6 +12,7 @@ public class Lecture {
     private Long id;
 
     private String name;
+    private String description;
 
     @Lob
     @Column(columnDefinition = "TEXT") // or "LONGTEXT" for MySQL if needed
@@ -51,5 +52,13 @@ public class Lecture {
 
     public void setCourse(Course course) {
         this.course = course;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

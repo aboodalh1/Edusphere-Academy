@@ -20,7 +20,7 @@ public class CollegeController {
         this.collegeService = collegeService;
     }
 
-    @Operation(summary = "Delete all College")
+    @Operation(summary = "Get all College")
     @GetMapping
     public List<College> getAllColleges() {
         return collegeService.getAllColleges();
@@ -36,8 +36,8 @@ public class CollegeController {
     @Operation(summary = "Create New College")
 //    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<?> createCollege(@RequestBody CollegeRequest college, @RequestParam Long universityId) {
-        Optional<College> createdCollege = collegeService.createCollege(college, universityId);
+    public ResponseEntity<?> createCollege(@RequestBody CollegeRequest college) {
+        Optional<College> createdCollege = collegeService.createCollege(college);
         if (createdCollege.isPresent()) {
             return ResponseEntity.ok(createdCollege.get());
         } else {
@@ -49,9 +49,8 @@ public class CollegeController {
 //    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCollege(@PathVariable Long id,
-                                           @RequestBody CollegeRequest college,
-                                           @RequestParam Long universityId) {
-        Optional<College> updatedCollege = collegeService.updateCollege(id, college, universityId);
+                                           @RequestBody CollegeRequest college) {
+        Optional<College> updatedCollege = collegeService.updateCollege(id, college);
         if (updatedCollege.isPresent()) {
             return ResponseEntity.ok(updatedCollege.get());
         } else {
